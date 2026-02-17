@@ -1,0 +1,267 @@
+:root {
+    --f1-red: #E10600;
+    /* Official F1 Red approximation */
+    --f1-black: #15151E;
+    --f1-dark-gray: #38383F;
+    --f1-light-gray: #D0D0D2;
+    --white: #FFFFFF;
+    --off-white: #F3F3F3;
+}
+
+body {
+    font-family: 'Titillium Web', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: var(--off-white);
+    color: var(--f1-black);
+    line-height: 1.5;
+}
+
+.container {
+    max-width: 1100px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Header */
+header {
+    background-color: var(--f1-black);
+    color: var(--white);
+    padding: 20px 0;
+    border-bottom: 5px solid var(--f1-red);
+    position: sticky;
+    top: 0;
+    z-index: 100;
+}
+
+.header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.logo {
+    font-size: 2rem;
+    font-weight: 700;
+    font-style: italic;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.f1-red {
+    color: var(--f1-red);
+}
+
+.event-details {
+    display: flex;
+    gap: 20px;
+    font-size: 0.9rem;
+    font-weight: 300;
+}
+
+.detail-item {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+}
+
+/* Controls / Search */
+.controls {
+    margin: 40px 0;
+}
+
+.search-wrapper {
+    display: flex;
+    gap: 10px;
+    background: white;
+    padding: 10px;
+    border-radius: 4px;
+    /* F1 uses some rounded corners now */
+    border: 1px solid var(--f1-light-gray);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+}
+
+#searchInput {
+    flex-grow: 1;
+    border: none;
+    font-size: 1.1rem;
+    padding: 10px;
+    font-family: inherit;
+    outline: none;
+}
+
+#searchBtn {
+    background-color: var(--f1-red);
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    font-family: inherit;
+    font-weight: 700;
+    font-style: italic;
+    text-transform: uppercase;
+    cursor: pointer;
+    border-radius: 4px;
+    transition: background-color 0.2s;
+}
+
+#searchBtn:hover {
+    background-color: #b30000;
+}
+
+/* Schedule */
+.section-title {
+    font-size: 1.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    margin-bottom: 30px;
+    border-left: 5px solid var(--f1-red);
+    padding-left: 15px;
+}
+
+.timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.talk-card {
+    display: flex;
+    background: white;
+    border-radius: 8px;
+    /* Slightly rounded */
+    overflow: hidden;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    border-right: 5px solid transparent;
+    /* default border */
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.talk-card:hover {
+    transform: translateX(5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    border-right-color: var(--f1-red);
+}
+
+.talk-card.break-card {
+    background-color: #e6e6e6;
+    border-style: dashed;
+    border-color: #ccc;
+}
+
+.talk-card.break-card:hover {
+    border-right-color: #ccc;
+    transform: none;
+}
+
+.time-slot {
+    background-color: var(--f1-black);
+    color: white;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-width: 120px;
+    text-align: center;
+    position: relative;
+}
+
+.time {
+    font-weight: 700;
+    font-size: 1.1rem;
+}
+
+.card-content {
+    padding: 20px 30px;
+    flex-grow: 1;
+}
+
+.category-tag {
+    background-color: var(--f1-red);
+    color: white;
+    padding: 2px 8px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    border-radius: 2px;
+    display: inline-block;
+    margin-bottom: 10px;
+}
+
+.break-card .category-tag {
+    background-color: #666;
+}
+
+.talk-title {
+    margin: 0 0 10px 0;
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+.talk-description {
+    color: var(--f1-dark-gray);
+    margin: 0 0 15px 0;
+}
+
+.speakers-list {
+    margin-top: auto;
+    font-size: 0.9rem;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+}
+
+.speakers-label {
+    font-weight: 600;
+    color: #666;
+}
+
+.speaker-link {
+    color: var(--f1-red);
+    text-decoration: none;
+    font-weight: 700;
+}
+
+.speaker-link:hover {
+    text-decoration: underline;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 30px 0;
+    margin-top: 50px;
+    color: #888;
+    font-size: 0.8rem;
+    border-top: 1px solid #ddd;
+}
+
+.no-results {
+    text-align: center;
+    padding: 40px;
+    font-size: 1.2rem;
+    color: #666;
+    background: white;
+    border-radius: 8px;
+}
+
+/* Mobile */
+@media (max-width: 768px) {
+    .talk-card {
+        flex-direction: column;
+    }
+
+    .time-slot {
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 10px 20px;
+        min-width: auto;
+    }
+
+    .card-content {
+        padding: 20px;
+    }
+}

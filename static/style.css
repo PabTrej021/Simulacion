@@ -1,0 +1,209 @@
+:root {
+    --google-blue: #4285F4;
+    --google-red: #DB4437;
+    --google-yellow: #F4B400;
+    --google-green: #0F9D58;
+    --gray-100: #f8f9fa;
+    --gray-200: #e9ecef;
+    --gray-800: #343a40;
+    --text-color: #202124;
+}
+
+body {
+    font-family: 'Google Sans', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #fff;
+    color: var(--text-color);
+    line-height: 1.6;
+}
+
+.container {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+/* Header */
+header {
+    background-color: #fff;
+    border-bottom: 1px solid var(--gray-200);
+    padding: 20px 0;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+header .container {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+}
+
+.logo {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: var(--gray-800);
+}
+
+.blue { color: var(--google-blue); }
+.red { color: var(--google-red); }
+.yellow { color: var(--google-yellow); }
+.green { color: var(--google-green); }
+
+.event-info {
+    text-align: right;
+    font-size: 0.9rem;
+    color: #5f6368;
+}
+
+.event-info p {
+    margin: 0;
+}
+
+/* Search */
+.search-section {
+    margin-bottom: 30px;
+}
+
+#searchInput {
+    width: 100%;
+    padding: 15px;
+    font-size: 1rem;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+    outline: none;
+    box-sizing: border-box; /* Ensure padding doesn't affect width */
+}
+
+#searchInput:focus {
+    border-color: var(--google-blue);
+    box-shadow: 0 1px 5px rgba(66, 133, 244, 0.3);
+}
+
+/* Schedule */
+.schedule h2 {
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    color: var(--gray-800);
+}
+
+.timeline {
+    position: relative;
+    border-left: 2px solid var(--gray-200);
+    padding-left: 20px;
+    margin-left: 10px;
+}
+
+.talk-card {
+    background: #fff;
+    border: 1px solid var(--gray-200);
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    position: relative;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.talk-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+}
+
+.talk-card::before {
+    content: '';
+    position: absolute;
+    left: -27px;
+    top: 25px;
+    width: 12px;
+    height: 12px;
+    background: var(--google-blue);
+    border-radius: 50%;
+    border: 2px solid #fff;
+}
+
+.time {
+    font-weight: bold;
+    color: var(--google-blue);
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+}
+
+.category {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 12px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background-color: var(--gray-200);
+    color: var(--gray-800);
+    margin-bottom: 10px;
+}
+
+.category.keynote { background-color: #E8F0FE; color: var(--google-blue); }
+.category.infrastructure { background-color: #CEEAD6; color: var(--google-green); }
+.category.data-&-analytics { background-color: #FEF7E0; color: #F9AB00; } /* Adjusted Yellow for text contrast */
+.category.break { background-color: #FCE8E6; color: var(--google-red); }
+.category.ai-&-ml { background-color: #F3E8FD; color: #9C27B0; }
+.category.app-development { background-color: #E1F5FE; color: #0288D1; }
+.category.security { background-color: #E0F2F1; color: #00897B; }
+
+.content h3 {
+    margin: 5px 0 10px;
+    font-size: 1.3rem;
+}
+
+.description {
+    color: #5f6368;
+    margin-bottom: 15px;
+}
+
+.speakers p {
+    margin: 0 0 5px;
+    font-size: 0.9rem;
+    color: #5f6368;
+}
+
+.speakers ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.speakers li a {
+    text-decoration: none;
+    color: var(--google-blue);
+    font-weight: 500;
+}
+
+.speakers li a:hover {
+    text-decoration: underline;
+}
+
+/* Footer */
+footer {
+    text-align: center;
+    padding: 20px 0;
+    margin-top: 40px;
+    border-top: 1px solid var(--gray-200);
+    color: #5f6368;
+    font-size: 0.85rem;
+}
+
+/* Responsive */
+@media (max-width: 600px) {
+    header .container {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .event-info {
+        text-align: left;
+        margin-top: 10px;
+    }
+}

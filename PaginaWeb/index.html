@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>F1 2D: Real Tracks</title>
+    <style>
+        /* --- UI & ESTILOS (IGUAL QUE LA VERSIÓN ANTERIOR) --- */
+        body {
+            margin: 0;
+            background-color: #121212;
+            color: white;
+            font-family: 'Segoe UI', system-ui, sans-serif;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            height: 100vh;
+            user-select: none;
+        }
+        h1 { text-transform: uppercase; font-style: italic; letter-spacing: 1px; color: #eee; margin: 10px 0; }
+        .screen { display: none; flex-direction: column; align-items: center; width: 100%; height: 100%; padding-top: 10px; overflow-y: auto; }
+        .active { display: flex; animation: fadeEnt 0.4s ease-out; }
+        @keyframes fadeEnt { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .grid-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; width: 95%; max-width: 1200px; padding-bottom: 30px; }
+        .team-card { background: #2a2a2a; border: 1px solid #444; border-radius: 6px; padding: 10px; transition: all 0.2s; }
+        .team-card:hover { transform: translateY(-3px); border-color: #fff; box-shadow: 0 5px 15px rgba(0,0,0,0.5); }
+        .team-color-bar { height: 4px; width: 100%; margin-bottom: 8px; border-radius: 2px; }
+        .team-name { font-weight: bold; font-size: 1rem; margin-bottom: 8px; display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .driver-btn { display: block; width: 100%; margin: 4px 0; padding: 8px; background: #333; border: none; color: #ccc; cursor: pointer; border-radius: 4px; text-align: left; transition: background 0.2s; font-size: 0.9rem; }
+        .driver-btn:hover { background: #555; color: white; padding-left: 12px; }
+        .track-list { display: flex; justify-content: center; flex-wrap: wrap; gap: 15px; margin-top: 20px; }
+        .track-card { background: #222; width: 180px; padding: 15px; border: 2px solid #444; border-radius: 10px; cursor: pointer; text-align: center; transition: 0.2s; }
+        .track-card:hover { border-color: #c0392b; background: #2c2c2c; }
+        .flag { font-size: 2.5rem; display: block; margin-bottom: 5px; }
+        #gameContainer { position: relative; display: none; width: 100%; height: 100%; justify-content: center; align-items: center; background: #000; }
+        canvas { box-shadow: 0 0 30px rgba(0,0,0,0.5); max-width: 100%; max-height: 100%; }
+        #hud { position: absolute; top: 20px; left: 20px; background: rgba(10, 10, 10, 0.85); padding: 10px 20px; border-radius: 8px; border-left: 4px solid #fff; backdrop-filter: blur(5px); pointer-events: none; }
+        .hud-speed { font-size: 2rem; font-weight: 800; font-style: italic; font-family: monospace; }
+        .hud-unit { font-size: 0.8rem; font-weight: normal; color: #aaa; }
+        .controls { position: absolute; bottom: 15px; right: 20px; text-align: right; color: #888; font-size: 0.8rem; pointer-events: none; }
+        .key { display: inline-block; padding: 2px 5px; border: 1px solid #666; border-radius: 4px; margin: 0 2px; }
+        button.back { margin-top: 20px; background: transparent; border: 1px solid #666; color: #aaa; padding: 8px 15px; cursor: pointer; }
+        button.back:hover { border-color: white; color: white; }
+    </style>
+</head>
+<body>
+
+    <div id="screen-team" class="screen active">
+        <h1>Temporada 2025</h1>
+        <div class="grid-container" id="teamGrid"></div>
+    </div>
+
+    <div id="screen-track" class="screen">
+        <h1>Seleccionar Circuito</h1>
+        <h2 id="selectedDriverDisplay" style="color: #aaa; font-size: 1.1rem; margin:0 0 15px 0;"></h2>
+        <div class="track-list" id="trackList"></div>
+        <button class="back" onclick="location.reload()">← Volver</button>
+    </div>
+
+    <div id="gameContainer">
+        <div id="hud">
+            <div id="hudTeamName" style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px;">TEAM</div>
+            <div id="hudDriverName" style="color: #ddd; margin-bottom: 2px; font-size: 0.9rem;">Driver</div>
+            <div class="hud-speed"><span id="speedVal">0</span> <span class="hud-unit">KM/H</span></div>
+        </div>
+        <div class="controls">
+            Acelerar <span class="key">⬆</span> Frenar <span class="key">⬇</span> Girar <span class="key">⬅</span><span class="key">➡</span>
+        </div>
+        <canvas id="gameCanvas" width="900" height="600"></canvas>
+    </div>
+
+    <script>
+        // --- BASE DE DATOS ---
+        const teams = [
+            { name: "Red Bull Racing", color: "#1E41CC", sec: "#FCD116", drivers: ["Max Verstappen", "Sergio Pérez"] },
+            { name: "Ferrari", color: "#FF0000", sec: "#FFF200", drivers: ["Charles Leclerc", "Lewis Hamilton"] },
+            { name: "McLaren", color: "#FF8700", sec: "#111111", drivers: ["Lando Norris", "Oscar Piastri"] },
+            { name: "Mercedes", color: "#00D2BE", sec: "#C0C0C0", drivers: ["George Russell", "Kimi Antonelli"] },
+            { name: "Aston Martin", color: "#006F62", sec: "#CEDC00", drivers: ["Fernando Alonso", "Lance Stroll"] },
+            { name: "Alpine", color: "#0090FF", sec: "#FD4BC7", drivers: ["Pierre Gasly", "Jack Doohan"] },
+            { name: "Williams", color: "#005AFF", sec: "#111111", drivers: ["Alex Albon", "Carlos Sainz"] },
+            { name: "RB", color: "#1634BD", sec: "#FFFFFF", drivers: ["Yuki Tsunoda", "Liam Lawson"] },
+            { name: "Sauber/Audi", color: "#52E252", sec: "#111111", drivers: ["Nico Hulkenberg", "Bortoleto"] },
+            { name: "Haas", color: "#FFFFFF", sec: "#E6002B", drivers: ["Esteban Ocon", "Ollie Bearman"] }
+        ];
+
+        const tracks = [
+            { 
+                id: "monza", name: "Monza (Italia)", flag: "🇮🇹",
+                bgColor: "#386641", friction: 0.99, width: 65, grip: 0.93, maxSpeed: 17.5,
+                startX: 400, startY: 550, startAngle: 0 
+            },
+            { 
+                id: "monaco", name: "Mónaco", flag: "🇲🇨",
+                bgColor: "#495057", friction: 0.95, width: 40, grip: 0.98, maxSpeed: 12.5,
+                startX: 100, startY: 450, startAngle: -0.3 
+            },
+            { 
+                id: "silverstone", name: "Silverstone (UK)", flag: "🇬🇧",
+                bgColor: "#3a5a40", friction: 0.97, width: 58, grip: 0.96, maxSpeed: 16.0,
+                startX: 450, startY: 540, startAngle: 0 
+            },
+            { 
+                id: "interlagos", name: "Interlagos (Brasil)", flag: "🇧🇷",
+                bgColor: "#588157", friction: 0.96, width: 55, grip: 0.96, maxSpeed: 15.0,
+                startX: 250, startY: 200, startAngle: 2.5 // Antihorario
+            }
+        ];
+
+        let gameState = { team: null, driver: null, track: null };
+
+        // --- GENERADOR UI ---
+        const teamGrid = document.getElementById('teamGrid');
+        teams.forEach(t => {
+            const card = document.createElement('div');
+            card.className = 'team-card';
+            card.innerHTML = `<div class="team-color-bar" style="background:linear-gradient(90deg, ${t.color}, ${t.sec})"></div><span class="team-name">${t.name}</span>`;
+            t.drivers.forEach(d => {
+                const btn = document.createElement('button');
+                btn.className = 'driver-btn';
+                btn.innerText = d;
+                btn.onclick = () => {
+                    gameState.team = t;
+                    gameState.driver = d;
+                    document.getElementById('screen-team').classList.remove('active');
+                    document.getElementById('screen-track').classList.add('active');
+                    document.getElementById('selectedDriverDisplay').innerHTML = `${d} <span style="color:${t.color}">■</span>`;
+                };
+                card.appendChild(btn);
+            });
+            teamGrid.appendChild(card);
+        });
+
+        const trackList = document.getElementById('trackList');
+        tracks.forEach(t => {
+            const card = document.createElement('div');
+            card.className = 'track-card';
+            card.innerHTML = `<span class="flag">${t.flag}</span><br><strong>${t.name}</strong>`;
+            card.onclick = () => {
+                gameState.track = t;
+                document.getElementById('screen-track').classList.remove('active');
+                startGame();
+            };
+            trackList.appendChild(card);
+        });
+
+        // --- DEFINICIÓN PRECIZA DE CIRCUITOS (NUEVO) ---
+        function getTrackPath(id) {
+            const p = new Path2D();
+            if (id === "monza") {
+                // --- MONZA (Alta Fidelidad) ---
+                p.moveTo(300, 550); // Recta Principal
+                p.lineTo(650, 550); 
+                // Variante del Rettifilo (Chicana 1) - Derecha cerrada, izquierda
+                p.bezierCurveTo(680, 550, 690, 530, 700, 520); 
+                p.bezierCurveTo(710, 510, 720, 530, 740, 520);
+                // Curva Grande (Larga derecha)
+                p.quadraticCurveTo(880, 480, 820, 250);
+                // Variante della Roggia (Chicana 2) - Izquierda, derecha
+                p.lineTo(780, 180);
+                p.bezierCurveTo(770, 140, 740, 160, 720, 150);
+                p.bezierCurveTo(700, 140, 710, 110, 680, 100);
+                // Lesmo 1 (Derecha)
+                p.quadraticCurveTo(640, 80, 600, 100);
+                p.lineTo(550, 110); // Pequeña recta entre Lesmos
+                // Lesmo 2 (Derecha más cerrada)
+                p.quadraticCurveTo(500, 120, 480, 150);
+                // Serraglio (Bajada recta curva)
+                p.lineTo(400, 200);
+                // Variante Ascari (Compleja Izq-Der-Izq)
+                p.bezierCurveTo(350, 230, 380, 250, 360, 280); // Entrada Izq
+                p.bezierCurveTo(340, 310, 300, 290, 280, 320); // Salida Der-Izq
+                // Recta opuesta
+                p.lineTo(200, 420);
+                // Parabólica (Derecha larga radio creciente)
+                p.bezierCurveTo(150, 480, 180, 550, 300, 550);
+
+            } else if (id === "monaco") {
+                // --- MÓNACO (Alta Fidelidad) ---
+                p.moveTo(100, 450); // Recta principal
+                // Sainte Dévote (Derecha cerrada)
+                p.bezierCurveTo(120, 400, 140, 380, 180, 370);
+                // Beau Rivage (Subida izquierda larga)
+                p.quadraticCurveTo(250, 340, 280, 250);
+                // Massenet / Casino (Izquierda ciega)
+                p.bezierCurveTo(290, 180, 340, 150, 400, 170);
+                // Mirabeau Haute (Derecha bajada)
+                p.lineTo(450, 190);
+                p.quadraticCurveTo(500, 200, 480, 240);
+                // Fairmont Hairpin (Horquilla Loews - Muy lenta)
+                p.bezierCurveTo(440, 260, 440, 300, 480, 310);
+                // Mirabeau Bas / Portier (Doble derecha antes del túnel)
+                p.lineTo(520, 320);
+                p.quadraticCurveTo(560, 330, 550, 360); // Portier 1
+                p.quadraticCurveTo(540, 390, 580, 400); // Portier 2 (Entrada túnel)
+                // El Túnel (Curva larga derecha rápida)
+                p.bezierCurveTo(650, 420, 720, 450, 680, 500);
+                // Nouvelle Chicane (Frenada fuerte tras túnel)
+                p.lineTo(620, 520);
+                p.bezierCurveTo(600, 530, 610, 500, 580, 500);
+                // Tabac (Izquierda rápida)
+                p.quadraticCurveTo(520, 500, 480, 520);
+                // Piscina (Swimming Pool - S rápida)
+                p.bezierCurveTo(440, 540, 420, 500, 380, 520); // S 1
+                p.bezierCurveTo(340, 540, 350, 570, 300, 560); // S 2 (Salida)
+                // Rascasse (Derecha cerrada de 180)
+                p.bezierCurveTo(250, 550, 240, 480, 200, 490);
+                // Anthony Noghes (Última curva derecha)
+                p.quadraticCurveTo(150, 500, 100, 450);
+
+            } else if (id === "silverstone") {
+                // --- SILVERSTONE (Alta Fidelidad) ---
+                p.moveTo(400, 540); p.lineTo(550, 540); // Hamilton Straight
+                // Abbey (Derecha muy rápida)
+                p.quadraticCurveTo(620, 540, 630, 480);
+                // Farm (Izquierda suave)
+                p.quadraticCurveTo(635, 420, 600, 400);
+                // Village / The Loop (Complejo lento Izq-Der)
+                p.bezierCurveTo(550, 380, 520, 420, 540, 450); // Village
+                p.bezierCurveTo(560, 480, 500, 500, 480, 480); // The Loop
+                // Aintree (Izquierda para recta)
+                p.quadraticCurveTo(460, 460, 400, 470);
+                // Wellington Straight
+                p.lineTo(300, 480);
+                // Brooklands (Izquierda larga cerrándose)
+                p.bezierCurveTo(200, 500, 200, 400, 240, 360);
+                // Luffield (Horquilla larga derecha)
+                p.bezierCurveTo(280, 320, 340, 340, 350, 380);
+                // Woodcote (Derecha rápida salida)
+                p.quadraticCurveTo(360, 420, 420, 400);
+                // Copse (Derecha ciega ultra rápida)
+                p.quadraticCurveTo(480, 380, 500, 300);
+                // Maggots / Becketts / Chapel (La Senda Mágica - Izq/Der/Izq/Der/Izq)
+                p.bezierCurveTo(510, 250, 530, 250, 540, 220); // Maggots 1
+                p.bezierCurveTo(550, 190, 580, 200, 590, 170); // Becketts entrada
+                p.bezierCurveTo(600, 140, 630, 150, 650, 180); // Chapel salida
+                // Hangar Straight
+                p.lineTo(780, 240);
+                // Stowe (Derecha rápida bajada)
+                p.bezierCurveTo(850, 280, 820, 350, 780, 400);
+                // Vale (Frenada fuerte izquierda)
+                p.lineTo(720, 480);
+                p.quadraticCurveTo(700, 520, 650, 520);
+                // Club (Chicana final derecha-izquierda lenta)
+                p.bezierCurveTo(600, 520, 610, 560, 550, 550);
+                p.quadraticCurveTo(450, 550, 400, 540); // Salida a meta
+
+            } else if (id === "interlagos") {
+                // --- INTERLAGOS (Antihorario - Alta Fidelidad) ---
+                // Inicio: Subida de boxes curva
+                p.moveTo(250, 200); 
+                // S de Senna (Izquierda bajada fuerte, luego derecha)
+                p.bezierCurveTo(150, 250, 180, 320, 220, 340); // La S principal
+                p.quadraticCurveTo(250, 360, 280, 350); // Salida derecha
+                // Curva do Sol (Larga izquierda acelerando)
+                p.bezierCurveTo(350, 320, 450, 340, 500, 360);
+                // Reta Oposta (Recta opuesta)
+                p.lineTo(650, 380);
+                // Descida do Lago (Doble izquierda bajada)
+                p.bezierCurveTo(720, 400, 700, 480, 650, 500);
+                // Infield Section (Muy trabado)
+                // Ferradura (Derecha subida)
+                p.quadraticCurveTo(600, 520, 580, 480);
+                // Laranjinha (Derecha ciega)
+                p.quadraticCurveTo(560, 440, 520, 450);
+                // Pinheirinho (Izquierda lenta)
+                p.bezierCurveTo(480, 460, 480, 500, 500, 520);
+                // Bico de Pato (Horquilla derecha muy lenta)
+                p.bezierCurveTo(520, 550, 450, 580, 420, 540);
+                // Mergulho (Izquierda rápida bajada)
+                p.quadraticCurveTo(380, 500, 350, 520);
+                // Junção (Izquierda clave para la subida)
+                p.quadraticCurveTo(300, 550, 280, 500);
+                // Subida dos Boxes (Curva izquierda a fondo muy larga)
+                // Esta es la característica principal de Interlagos
+                p.bezierCurveTo(250, 350, 400, 150, 250, 200); 
+            }
+            return p;
+        }
+
+        function startGame() {
+            document.getElementById('gameContainer').style.display = 'flex';
+            const hudTeam = document.getElementById('hudTeamName');
+            hudTeam.innerText = gameState.team.name;
+            hudTeam.style.color = gameState.team.color;
+            document.getElementById('hudDriverName').innerText = gameState.driver;
+            document.getElementById('hud').style.borderLeftColor = gameState.team.color;
+
+            // --- INICIALIZAR FÍSICA ---
+            const canvas = document.getElementById('gameCanvas');
+            const ctx = canvas.getContext('2d');
+            const track = gameState.track;
+            const path = getTrackPath(track.id);
+            const speedEl = document.getElementById('speedVal');
+
+            canvas.style.backgroundColor = track.bgColor;
+
+            const car = {
+                x: track.startX, y: track.startY, angle: track.startAngle,
+                vx: 0, vy: 0,
+                accel: 0.35, brakeForce: 0.85, turnSpeed: 0.055,
+                drag: 0.975, grip: track.grip, maxSpd: track.maxSpeed,
+                color: gameState.team.color, sec: gameState.team.sec
+            };
+
+            const keys = { ArrowUp: false, ArrowDown: false, ArrowLeft: false, ArrowRight: false };
+            window.addEventListener('keydown', e => { if(keys.hasOwnProperty(e.code)) keys[e.code] = true; });
+            window.addEventListener('keyup', e => { if(keys.hasOwnProperty(e.code)) keys[e.code] = false; });
+
+            function update() {
+                if (keys.ArrowUp) { car.vx += Math.cos(car.angle) * car.accel; car.vy += Math.sin(car.angle) * car.accel; }
+                if (keys.ArrowDown) { car.vx *= (1 - car.brakeForce * 0.1); car.vy *= (1 - car.brakeForce * 0.1); }
+                let speed = Math.sqrt(car.vx**2 + car.vy**2);
+                let turnFactor = car.turnSpeed * (Math.max(0.2, 1 - (speed / (car.maxSpd * 1.5))));
+                if (speed > 0.5) { if (keys.ArrowLeft) car.angle -= turnFactor; if (keys.ArrowRight) car.angle += turnFactor; }
+                car.vx *= car.drag; car.vy *= car.drag;
+                if (speed > car.maxSpd) { let ratio = car.maxSpd / speed; car.vx *= ratio; car.vy *= ratio; }
+                
+                ctx.lineWidth = track.width;
+                if (!ctx.isPointInStroke(path, car.x, car.y)) { car.vx *= 0.85; car.vy *= 0.85; speedEl.style.color = "#ff4444"; } 
+                else { speedEl.style.color = "white"; }
+                car.x += car.vx; car.y += car.vy;
+                speedEl.innerText = Math.round(speed * 22);
+            }
+
+            function draw() {
+                ctx.fillStyle = track.bgColor; ctx.fillRect(0,0,canvas.width, canvas.height);
+                ctx.lineCap = "round"; ctx.lineJoin = "round";
+                ctx.lineWidth = track.width + 8; ctx.strokeStyle = (track.id === "monaco") ? "#999" : "#d90429"; ctx.stroke(path);
+                ctx.lineWidth = track.width; ctx.strokeStyle = "#2b2b2b"; ctx.stroke(path);
+                ctx.save(); ctx.translate(track.startX, track.startY); ctx.rotate(track.startAngle);
+                ctx.fillStyle = "#fff"; ctx.fillRect(0, -track.width/2, 4, track.width); ctx.restore();
+
+                ctx.save(); ctx.translate(car.x, car.y); ctx.rotate(car.angle);
+                ctx.fillStyle = "rgba(0,0,0,0.4)"; ctx.fillRect(-8, -14, 20, 30);
+                ctx.fillStyle = "#111"; ctx.fillRect(-9, -20, 18, 40);
+                ctx.fillStyle = car.color; ctx.beginPath(); ctx.moveTo(-8, -15); ctx.lineTo(8, -15); ctx.lineTo(9, 5); ctx.lineTo(3, 22); ctx.lineTo(-3, 22); ctx.lineTo(-9, 5); ctx.fill();
+                ctx.fillStyle = car.sec; ctx.fillRect(-2, -5, 4, 15);
+                ctx.fillStyle = "#1a1a1a"; ctx.fillRect(-10, -22, 20, 5); ctx.fillRect(-11, 22, 22, 3);
+                ctx.fillStyle = "#222"; ctx.fillRect(-13, -16, 6, 12); ctx.fillRect(7, -16, 6, 12); ctx.fillRect(-12, 8, 5, 9); ctx.fillRect(7, 8, 5, 9);
+                ctx.fillStyle = "#ffd700"; ctx.fillRect(-13, -13, 2, 6); ctx.fillRect(11, -13, 2, 6);
+                ctx.fillStyle = "#ffcc00"; ctx.beginPath(); ctx.arc(0, -2, 3.5, 0, Math.PI*2); ctx.fill();
+                ctx.restore();
+            }
+            function loop() { update(); draw(); requestAnimationFrame(loop); }
+            loop();
+        }
+    </script>
+</body>
+</html>

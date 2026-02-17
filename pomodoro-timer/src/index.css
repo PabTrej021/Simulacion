@@ -1,0 +1,249 @@
+@import './styles/variables.css';
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  font-family: var(--font-main);
+  background-color: var(--color-bg);
+  color: var(--color-text);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#root {
+  width: 100%;
+  max-width: 1200px;
+  padding: 2rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+button {
+  font-family: inherit;
+  cursor: pointer;
+  border: none;
+  background: none;
+  outline: none;
+}
+
+/* App Container */
+.app-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  gap: 2rem;
+  animation: fadeIn 1s ease-out;
+}
+
+h1 {
+  font-size: 2.5rem;
+  font-weight: 600;
+  letter-spacing: -0.05em;
+  color: var(--color-charcoal);
+  margin-bottom: 0.5rem;
+}
+
+/* Timer Card */
+.timer-card {
+  background: var(--color-white);
+  padding: 3rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+  width: 100%;
+  max-width: 400px;
+  transition: transform var(--transition-med), box-shadow var(--transition-med);
+}
+
+.timer-card:hover {
+  transform: translateY(-5px);
+  box-shadow: var(--shadow-hover);
+}
+
+/* Mode Selector */
+.mode-selector {
+  display: flex;
+  background: var(--color-sand);
+  padding: 0.5rem;
+  border-radius: var(--radius-md);
+  gap: 0.5rem;
+}
+
+.mode-selector button {
+  padding: 0.5rem 1rem;
+  border-radius: var(--radius-sm);
+  font-weight: 500;
+  color: var(--color-charcoal);
+  transition: background-color var(--transition-fast);
+}
+
+.mode-selector button.active {
+  background-color: var(--color-sage);
+  color: var(--color-white);
+  font-weight: 600;
+}
+
+/* Timer Display */
+.timer-display {
+  font-size: 6rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  color: var(--color-charcoal);
+  letter-spacing: -0.02em;
+}
+
+/* Controls */
+.controls {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-primary,
+.btn-secondary {
+  padding: 1rem 2rem;
+  border-radius: var(--radius-md);
+  font-size: 1.1rem;
+  font-weight: 600;
+  transition: all var(--transition-fast);
+}
+
+.btn-primary {
+  background-color: var(--color-charcoal);
+  color: var(--color-white);
+}
+
+.btn-primary:hover {
+  background-color: #2a2a2a;
+  transform: scale(1.05);
+}
+
+.btn-secondary {
+  background-color: transparent;
+  /* Changed from var(--color-sand) */
+  color: var(--color-charcoal);
+  border: 2px solid var(--color-sand-dark);
+}
+
+.btn-secondary:hover {
+  background-color: var(--color-sand);
+}
+
+/* Animations */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Task Manager */
+.task-manager {
+  width: 100%;
+  max-width: 400px;
+  background: var(--color-white);
+  padding: 2rem;
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-soft);
+  margin-top: 2rem;
+}
+
+.task-manager h2 {
+  font-size: 1.5rem;
+  color: var(--color-charcoal);
+  margin-bottom: 1rem;
+}
+
+.task-input-form {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.task-input-form input {
+  flex: 1;
+  padding: 0.8rem;
+  border: 2px solid var(--color-sand);
+  border-radius: var(--radius-md);
+  font-family: inherit;
+  font-size: 1rem;
+  transition: border-color var(--transition-fast);
+}
+
+.task-input-form input:focus {
+  outline: none;
+  border-color: var(--color-sage);
+}
+
+.btn-add {
+  background-color: var(--color-sage);
+  color: var(--color-white);
+  width: 50px;
+  border-radius: var(--radius-md);
+  font-size: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background-color var(--transition-fast);
+}
+
+.btn-add:hover {
+  background-color: #7d9389;
+}
+
+.task-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.task-list li {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.8rem;
+  background-color: var(--color-bg);
+  border-radius: var(--radius-md);
+  transition: all var(--transition-fast);
+}
+
+.task-list li span {
+  cursor: pointer;
+  flex: 1;
+}
+
+.task-list li.completed span {
+  text-decoration: line-through;
+  opacity: 0.5;
+}
+
+.btn-delete {
+  color: #cc8888;
+  font-size: 1.2rem;
+  padding: 0 0.5rem;
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.task-list li:hover .btn-delete {
+  opacity: 1;
+}

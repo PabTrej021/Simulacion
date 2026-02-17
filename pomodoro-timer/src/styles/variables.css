@@ -1,0 +1,26 @@
+:root {
+    /* Color Palette - Calm & Aesthetic */
+    --color-sage: #8da399;
+    --color-sage-light: #b4c5bc;
+    --color-sand: #f5f1e6;
+    --color-sand-dark: #e3dccb;
+    --color-charcoal: #3d3d3d;
+    --color-white: #ffffff;
+    --color-bg: #f9f7f2;
+    --color-text: #2c2c2c;
+    --color-accent: #d4a373;
+
+    /* Typography */
+    --font-main: 'Inter', system-ui, Avenir, Helvetica, Arial, sans-serif;
+
+    /* Spacing & Layout */
+    --radius-lg: 24px;
+    --radius-md: 16px;
+    --radius-sm: 8px;
+    --shadow-soft: 0 10px 30px -10px rgba(0, 0, 0, 0.05);
+    --shadow-hover: 0 20px 40px -10px rgba(0, 0, 0, 0.1);
+
+    /* Transitions */
+    --transition-fast: 0.2s ease;
+    --transition-med: 0.4s cubic-bezier(0.25, 0.8, 0.25, 1);
+}

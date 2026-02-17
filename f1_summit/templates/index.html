@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formula 1 Technical Summit 2026</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Titillium+Web:ital,wght@0,300;0,400;0,600;0,700;1,400&display=swap"
+        rel="stylesheet">
+</head>
+
+<body>
+    <header>
+        <div class="container header-content">
+            <div class="logo">
+                <span class="f1-red">F1</span> Technical Summit
+            </div>
+            <div class="event-details">
+                <div class="detail-item">
+                    <span class="icon">📅</span> {{ date }}
+                </div>
+                <div class="detail-item">
+                    <span class="icon">📍</span> {{ location }}
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="controls">
+            <div class="search-wrapper">
+                <input type="text" id="searchInput" placeholder="Search strategy, aerodynamics, speakers...">
+                <button id="searchBtn">Please Box (Search)</button>
+            </div>
+        </section>
+
+        <section class="schedule-section">
+            <h2 class="section-title">Race Schedule</h2>
+            <div class="timeline" id="scheduleTimeline">
+                {% for talk in talks %}
+                <div class="talk-card {{ 'break-card' if talk.category == 'Break' else '' }}"
+                    data-title="{{ talk.title }}" data-category="{{ talk.category }}"
+                    data-speakers="{% for speaker in talk.speakers %}{{ speaker.first_name }} {{ speaker.last_name }} {% endfor %}">
+
+                    <div class="time-slot">
+                        <span class="time">{{ talk.time }}</span>
+                        <div class="track-line"></div>
+                    </div>
+
+                    <div class="card-content">
+                        <div class="card-header">
+                            <span class="category-tag">{{ talk.category }}</span>
+                        </div>
+                        <h3 class="talk-title">{{ talk.title }}</h3>
+                        <p class="talk-description">{{ talk.description }}</p>
+
+                        {% if talk.speakers %}
+                        <div class="speakers-list">
+                            <span class="speakers-label">Presented by:</span>
+                            {% for speaker in talk.speakers %}
+                            <a href="{{ speaker.linkedin }}" target="_blank" class="speaker-link">
+                                {{ speaker.first_name }} {{ speaker.last_name }}
+                            </a>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            <div id="no-results" class="no-results" style="display: none;">
+                <p>No telemetry found matching your query.</p>
+            </div>
+        </section>
+    </main>
+
+    <footer>
+        <div class="container">
+            <p>&copy; 2026 F1 Technical Summit. Not officially affiliated with Formula One World Championship Limited.
+            </p>
+        </div>
+    </footer>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+</body>
+
+</html>
